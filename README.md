@@ -1,10 +1,10 @@
-# Library Management System
+# 📚 Library Management System
 
 ## Overview
 
 A console-based Library Management System developed using Java, JDBC, and MySQL.
 
-This application allows users to manage books, students, and issue/return records efficiently.
+This application allows users to manage books, students, and issue/return records efficiently. The system also provides features for tracking overdue books, late returns, and maintaining library inventory.
 
 ---
 
@@ -54,7 +54,7 @@ This application allows users to manage books, students, and issue/return record
 
 ## Concepts Used
 
-- Object Oriented Programming (OOP)
+- Object-Oriented Programming (OOP)
 - DAO Pattern
 - Exception Handling
 - Transactions
@@ -74,6 +74,8 @@ source
 ├── util
 └── main
 ```
+
+---
 
 ## Database
 
@@ -103,6 +105,102 @@ db.password=your_password
 
 ---
 
+## Screenshots
+
+### Main Menu
+
+screenshots/main-menu.png
+
+### Add Book
+
+screenshots/add-book.png
+
+### Add Student
+
+screenshots/add-student.png
+
+### Issue Book
+
+screenshots/issue-book.png
+
+### Return Book
+
+screenshots/return-book.png
+
+### View Books
+
+screenshots/view-books.png
+
+### View Students
+
+screenshots/view-students.png
+
+### Issued Books
+
+screenshots/issued-books.png
+
+### Returned Books
+
+screenshots/returned-books.png
+
+### Student Records
+
+screenshots/student-records.png
+
+### View Records
+
+screenshots/view-records.png
+
+---
+
+## How to Run
+
+1. Clone the repository:
+
+```bash
+git clone https://github.com/Akash-36610/library-management-system.git
+```
+
+2. Create a MySQL database:
+
+```sql
+CREATE DATABASE library_management;
+```
+
+3. Create the required tables in the database.
+
+4. Create a file named:
+
+```text
+config.properties
+```
+
+5. Add your database configuration:
+
+```properties
+db.url=jdbc:mysql://localhost:3306/library_management
+db.user=root
+db.password=your_password
+```
+
+6. Add the MySQL JDBC Driver to the `lib` folder.
+
+7. Open the project in VS Code or any Java IDE.
+
+8. Compile and run:
+
+```text
+Main.java
+```
+
+9. Use the menu-driven interface to manage books, students, and issue/return records.
+
+---
+
 ## Author
 
-Akash
+**R Akash**  
+
+GitHub: https://github.com/Akash-36610
+
+---
