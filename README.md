@@ -152,7 +152,6 @@ db.password=your_password
 ### View Records
 
 ![View Records](screenshots/view-records.png)
-
 ---
 
 
