@@ -105,53 +105,56 @@ db.password=your_password
 
 ---
 
+---
+
 ## Screenshots
 
 ### Main Menu
 
-screenshots/main-menu.png
+![Main Menu](screenshots/main-menu.png)
 
 ### Add Book
 
-screenshots/add-book.png
+![Add Book](screenshots/add-book.png)
 
 ### Add Student
 
-screenshots/add-student.png
+![Add Student](screenshots/add-student.png)
 
 ### Issue Book
 
-screenshots/issue-book.png
+![Issue Book](screenshots/issue-book.png)
 
 ### Return Book
 
-screenshots/return-book.png
+![Return Book](screenshots/return-book.png)
 
 ### View Books
 
-screenshots/view-books.png
+![View Books](screenshots/view-books.png)
 
 ### View Students
 
-screenshots/view-students.png
+![View Students](screenshots/view-students.png)
 
 ### Issued Books
 
-screenshots/issued-books.png
+![Issued Books](screenshots/issued-books.png)
 
 ### Returned Books
 
-screenshots/returned-books.png
+![Returned Books](screenshots/returned-books.png)
 
 ### Student Records
 
-screenshots/student-records.png
+![Student Records](screenshots/student-records.png)
 
 ### View Records
 
-screenshots/view-records.png
+![View Records](screenshots/view-records.png)
 
 ---
+
 
 ## How to Run
 
