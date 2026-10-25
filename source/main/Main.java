@@ -1,9 +1,10 @@
 package source.main;
 
 import java.util.Scanner;
-import source.DAO.BookDao;
-import source.DAO.IssueRecordDao;
-import source.DAO.StudentDao;
+
+import source.dao.BookDao;
+import source.dao.IssueRecordDao;
+import source.dao.StudentDao;
 import source.model.Book;
 import source.model.Student;
 import source.util.Validator;
