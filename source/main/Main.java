@@ -1,7 +1,7 @@
 package source.main;
 
-import java.util.Scanner;
 
+import java.util.Scanner;
 import source.dao.BookDao;
 import source.dao.IssueRecordDao;
 import source.dao.StudentDao;
@@ -10,12 +10,18 @@ import source.model.Student;
 import source.util.Validator;
 
 
-
+/**
+ * Main entry point of the Library Management System.
+ * Displays menus and handles user interactions.
+ */
 public class Main
 {
-        
+    // Scanner object used throughout the application for user input
     public static Scanner sc = new Scanner(System.in);
 
+    /**
+     * Displays the main menu options. 
+     * */
     private static void printMenu()
     {
             System.out.println("==============================");
@@ -51,6 +57,11 @@ public class Main
             System.out.println("21.View Late Returned Books ");
             System.out.println("22.Exit ");
     }
+
+     /**
+     * Handles menu navigation and executes
+     * the selected library operations.
+     */
     private static  void menu()
     {
             
@@ -59,6 +70,8 @@ public class Main
         do{
 
             printMenu();
+
+             // Read user's menu choice
             choice = Validator.getIntInput("Enter Choice : ");
 
             switch(choice)
@@ -274,12 +287,12 @@ public class Main
                         IssueRecordDao.viewLateReturnedBooks();
                     }
                     break;
-                case 22:
+                case 22://exit application
                     {
                         System.out.println("Thank you for using our Library System. Welcome Again.");
                     }
                     break;
-                default:
+                default://Invalid menu selection
                         {
                             System.out.println("Invalid Choice Selected");
                         }
@@ -287,7 +300,10 @@ public class Main
 
         }while(choice != 22);
     }
-                
+            
+     /**
+     * Program execution starts here.
+     */
     public static void main(String[] args) 
     {
         menu();   
