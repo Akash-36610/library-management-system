@@ -1,16 +1,28 @@
 package source.model;
 
-public class Book 
+/**
+ * Represents a book in the Library Management System.
+ * Stores all details related to a book such as its
+ * unique ID, title, author, category, and quantity.
+ */
+public class Book
 {
-    //book attributes
+    // Unique identifier assigned to the book
     private final String bookId;
+
+    // Basic book information
     private final String title;
     private final String author;
     private final String category;
+
+    // Number of available copies of the book
     private int quantity;
 
-    //Constructor -> initialize attribute values
-    public Book(String bookId,String title,String author,String category,int quantity) 
+    /**
+     * Constructor used to initialize a Book object
+     * with all required details.
+     */
+    public Book(String bookId,String title,String author,String category,int quantity)
     {
         this.bookId=bookId;
         this.title=title;
@@ -19,39 +31,58 @@ public class Book
         this.quantity=quantity;
     }
 
-
+    // Returns the unique book ID
     public String getBookId()
     {
         return bookId;
     }
-    public String getTitle() 
+
+    // Returns the title of the book
+    public String getTitle()
     {
         return title;
     }
-    public String getAuthor() 
+
+    // Returns the author name
+    public String getAuthor()
     {
         return author;
     }
-    public String getCategory() 
+
+    // Returns the category/genre of the book
+    public String getCategory()
     {
         return category;
     }
-    public int getQuantity() 
+
+    // Returns the current available quantity
+    public int getQuantity()
     {
         return quantity;
     }
 
-    //setters
-
-    public void setQuantity(int quantity) 
+    /**
+     * Updates the quantity of the book.
+     */
+    public void setQuantity(int quantity)
     {
-        this.quantity =  quantity;
+        this.quantity = quantity;
     }
-    public void increaseQuantity(int quantity) 
+
+    /**
+     * Increases the available quantity when
+     * new copies are added to the library.
+     */
+    public void increaseQuantity(int quantity)
     {
         this.quantity = this.quantity + quantity;
     }
-    public void decreaseQuantity(int quantity) 
+
+    /**
+     * Decreases the available quantity when
+     * books are borrowed or removed.
+     */
+    public void decreaseQuantity(int quantity)
     {
         this.quantity = this.quantity - quantity;
     }
