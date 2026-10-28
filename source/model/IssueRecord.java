@@ -1,34 +1,70 @@
+
 package source.model;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-public class IssueRecord 
+// Model class that represents a book issue record in the library system.
+public class IssueRecord
 {
+    // Stores the unique ID of the issue record.
     private int issueId;
-    private final String regNo;
-    private final String bookId;
-    private final LocalDate issueDate;
-    private final LocalTime issueTime;
-    private final LocalDate dueDate;
-    private LocalDate returnDate;
-    private LocalTime returnTime;
-    private  IssueStatus status;
 
-    //Constructor for initialize issue
-    public IssueRecord(String regNo, String bookId, LocalDate issueDate, LocalTime issueTime, LocalDate dueDate) 
+    // Stores the registration number of the student who borrowed the book.
+    // final means this value cannot be reassigned after initialization.
+    private final String regNo;
+
+    // Stores the ID of the borrowed book.
+    private final String bookId;
+
+    // Stores the date on which the book was issued.
+    private final LocalDate issueDate;
+
+    // Stores the time at which the book was issued.
+    private final LocalTime issueTime;
+
+    // Stores the deadline for returning the book.
+    private final LocalDate dueDate;
+
+    // Stores the actual date on which the book was returned.
+    // Remains null until the book is returned.
+    private LocalDate returnDate;
+
+    // Stores the actual time at which the book was returned.
+    // Remains null until the book is returned.
+    private LocalTime returnTime;
+
+    // Stores the current status of the issue record.
+    // Example: ISSUED, RETURNED.
+    private IssueStatus status;
+
+
+    // Constructor for creating a new issue record.
+    // The issue ID is not provided here.
+    // The status is initialized to ISSUED by default.
+    public IssueRecord(String regNo, String bookId,
+                       LocalDate issueDate, LocalTime issueTime,
+                       LocalDate dueDate)
     {
+        // Assigns the provided values to the object's fields.
         this.regNo = regNo;
         this.bookId = bookId;
         this.issueDate = issueDate;
         this.issueTime = issueTime;
         this.dueDate = dueDate;
 
-        this.status = IssueStatus.ISSUED;//defaultly set status = ISSEUED when anew record is created
+        // Sets the initial status when a new book is issued.
+        this.status = IssueStatus.ISSUED;
     }
 
-    public IssueRecord(int issueId, String regNo, String bookId, LocalDate issueDate, LocalTime issueTime,LocalDate dueDate, IssueStatus status) 
+
+    // Constructor for creating an issue record with existing data.
+    // Useful when retrieving an existing record from the database.
+    public IssueRecord(int issueId, String regNo, String bookId,
+                       LocalDate issueDate, LocalTime issueTime,
+                       LocalDate dueDate, IssueStatus status)
     {
+        // Initializes all the fields using the provided values.
         this.issueId = issueId;
         this.regNo = regNo;
         this.bookId = bookId;
@@ -38,66 +74,87 @@ public class IssueRecord
         this.status = status;
     }
 
-    //setters
 
-    public void setIssueId(int issueId) 
+    // Setters: methods used to update fields that can change.
+
+    // Sets the issue record ID.
+    public void setIssueId(int issueId)
     {
         this.issueId = issueId;
     }
-    public void setReturnDate(LocalDate returnDate) 
+
+    // Sets the date on which the book was returned.
+    public void setReturnDate(LocalDate returnDate)
     {
         this.returnDate = returnDate;
     }
-    public void setReturnTime(LocalTime returnTime) 
+
+    // Sets the time at which the book was returned.
+    public void setReturnTime(LocalTime returnTime)
     {
         this.returnTime = returnTime;
     }
-    public void setStatus(IssueStatus status) 
+
+    // Updates the current status of the issue record.
+    public void setStatus(IssueStatus status)
     {
         this.status = status;
     }
 
-    //getters
-    
-    public int getIssueId() 
+
+    // Getters: methods used to retrieve field values.
+
+    // Returns the unique issue record ID.
+    public int getIssueId()
     {
         return issueId;
     }
-    public String getRegNo() 
+
+    // Returns the registration number of the student.
+    public String getRegNo()
     {
         return regNo;
     }
-    public String getBookId() 
+
+    // Returns the ID of the borrowed book.
+    public String getBookId()
     {
         return bookId;
     }
-    public LocalDate getIssueDate() 
+
+    // Returns the date on which the book was issued.
+    public LocalDate getIssueDate()
     {
         return issueDate;
     }
-    public LocalTime getIssueTime() 
+
+    // Returns the time at which the book was issued.
+    public LocalTime getIssueTime()
     {
         return issueTime;
     }
-    public LocalDate getDueDate() {
+
+    // Returns the book's due date.
+    public LocalDate getDueDate()
+    {
         return dueDate;
     }
-    public LocalDate getReturnDate() 
+
+    // Returns the actual return date, or null if not yet returned.
+    public LocalDate getReturnDate()
     {
         return returnDate;
     }
-    public LocalTime getReturnTime() 
+
+    // Returns the actual return time, or null if not yet returned.
+    public LocalTime getReturnTime()
     {
         return returnTime;
     }
-    public IssueStatus getStatus() 
+
+    // Returns the current issue status.
+    public IssueStatus getStatus()
     {
         return status;
     }
-    
-    
-
-
-
-
 }
