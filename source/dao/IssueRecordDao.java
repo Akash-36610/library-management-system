@@ -11,89 +11,28 @@ import source.model.IssueRecord;
 import source.model.IssueStatus;
 import source.util.ErrorUtil;
 
+/**
+ * Data Access Object (DAO) responsible for managing
+ * book issue and return transactions in the library.
+ *
+ * This class handles:
+ * - Book issuing
+ * - Book returning
+ * - Record tracking
+ * - Overdue monitoring
+ * - Database synchronization
+ */
 public class IssueRecordDao 
 {
+
+    /* ==========================================================
+   Issue and Return Operations
+   ----------------------------------------------------------
+   Handles book issuing and returning transactions.
+   Also updates book availability and maintains
+   transaction consistency using database transactions.
+   ========================================================== */
     
-    public static boolean hasIssueRecordForBookId(String bookId)//helper
-    {
-        String sql ="SELECT 1 FROM issued_books WHERE book_id=? LIMIT 1";
-
-        try(Connection con = DBConnection.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql))
-        {
-            pstmt.setString(1, bookId);
-
-            try(ResultSet rs = pstmt.executeQuery())
-            {
-                return rs.next();
-            }
-        }
-        catch(Exception e)
-        {
-            ErrorUtil.printError("Check Book Issue Records",e);
-        }
-
-        return false;
-    }
-    public static boolean hasIssueRecordForRegNo(String regNo)//helper
-    {
-        String sql ="SELECT 1 FROM issued_books WHERE reg_no=? LIMIT 1";
-
-        try(Connection con = DBConnection.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql))
-        {
-            pstmt.setString(1, regNo);
-
-            try(ResultSet rs = pstmt.executeQuery())
-            {
-                return rs.next();
-            }
-        }
-        catch(Exception e)
-        {
-           ErrorUtil.printError("Check Student Issue Records", e);
-        }
-
-        return false; 
-    }
-    private static void syncBookQuantityToDB(Connection connect,Book newBook,int n) throws SQLException//helper
-    {
-        String sql = "UPDATE books SET quantity = quantity + ? WHERE book_id=?;";
-
-        try( PreparedStatement  pstmt = connect.prepareStatement(sql); )
-        {
-            pstmt.setInt(1, n);
-            pstmt.setString(2, newBook.getBookId());
-
-            int rows = pstmt.executeUpdate();
-
-            if( rows<1 )
-            {
-                throw new SQLException("Book Count Not updated");
-            }
-        }
-         
-    }
-    private static boolean isAlreadyIssued(String regNo,String bookId)//helper
-    {
-        String sql = "SELECT 1 FROM issued_books WHERE reg_no = ? AND book_id = ? AND status =? ;";
-
-        try(Connection connect = DBConnection.getConnection(); PreparedStatement  pstmt = connect.prepareStatement(sql); )
-        {
-            pstmt.setString(1, regNo);
-            pstmt.setString(2, bookId);
-            pstmt.setString(3, IssueStatus.ISSUED.name());
-
-            try(ResultSet rs=pstmt.executeQuery())
-            {
-                return rs.next();
-            }
-        }
-        catch(SQLException e)
-        {
-           ErrorUtil.printError("Check Already Issued", e);
-        }
-        
-        return false;
-    }
     public static void issueBook(String regNo,String bookId)
     {
         if(StudentDao.getStudentByRegNo(regNo)==null)
@@ -204,31 +143,6 @@ public class IssueRecordDao
             }
         }
     }
-    private static IssueRecord getIssuedRecord(String regNo,String bookId,IssueStatus status)
-    {
-        String sql = "SELECT * FROM issued_books WHERE reg_no = ? and book_id = ? and status = ? ;";
-
-        try (Connection connect = DBConnection.getConnection(); PreparedStatement  pstmt = connect.prepareStatement(sql);)
-        {
-            pstmt.setString(1, regNo);
-            pstmt.setString(2,bookId);
-            pstmt.setString(3,status.name());
-
-            try(ResultSet rs = pstmt.executeQuery())
-            {
-                if(rs.next()) 
-                {
-                    return new IssueRecord(rs.getInt("issue_id"), rs.getString("reg_no"), rs.getString("book_id"), rs.getDate("issue_date").toLocalDate(), rs.getTime("issue_time").toLocalTime(), rs.getDate("due_date").toLocalDate(),IssueStatus.valueOf(rs.getString("status")));
-                }
-            }
-        } 
-        catch (Exception e) 
-        {
-           ErrorUtil.printError("Get Issue Record", e);
-        }
-
-        return null;
-    }
     public static void returnBook(String regNo,String bookId)
     {
         IssueRecord newRecord = getIssuedRecord(regNo, bookId, IssueStatus.ISSUED);
@@ -312,6 +226,16 @@ public class IssueRecordDao
             }
         }
     }
+
+
+    /* ==========================================================
+   Record Viewing Operations
+   ----------------------------------------------------------
+   Provides various ways to view issue records,
+   including student records, book records,
+   returned books, issued books, and overdue books.
+   ========================================================== */
+
     public static void viewAllRecords()
     {
         String sql ="SELECT * FROM issued_books ;";
@@ -325,35 +249,6 @@ public class IssueRecordDao
             ErrorUtil.printError("View All Records", e);
         }
        
-    }
-    public static void viewRecords(PreparedStatement pstmt)//helper
-    {
-        try (ResultSet rs=pstmt.executeQuery()) 
-        {
-            if(!rs.next())
-            {
-                System.out.println("No Record Available");
-                return;
-            }
-            
-            ConsoleUtil.printRecordHeader();
-            
-            int cnt=0;
-
-            do{
-                cnt++;
-                System.out.printf("%-10d %-12s %-12s %-12s %-12s %-12s %-12s %-12s %-10s%n", rs.getInt("issue_id"),rs.getString("reg_no"),rs.getString("book_id"),rs.getDate("issue_date"),rs.getTime("issue_time"),rs.getDate("due_date"),rs.getDate("return_date")==null? "-" : rs.getDate("return_date"),rs.getTime("return_time") == null ? "-" : rs.getTime("return_time"),rs.getString("status"));
-                ConsoleUtil.printSeparatorLine(110);
-            }while(rs.next());
-
-            ConsoleUtil.printHeadLine(110);
-            System.out.println("Total Record : "+cnt);
-            
-        } 
-        catch (Exception e) 
-        {
-            ErrorUtil.printError("View Records", e);
-        }
     }
     public static void viewRecordsByStudent(String regNo)
     {
@@ -463,5 +358,198 @@ public class IssueRecordDao
         }
     }
 
+    
+    
+    /* ==========================================================
+   Helper Methods
+   ----------------------------------------------------------
+   Internal utility methods used by the DAO for
+   record retrieval, validation, database updates,
+   and formatted record display.
+   ========================================================== */
 
+
+    /* ---------------------------------------------------------- 
+    Display Helpers
+    -------------------------------------------------------------- 
+    Responsible for formatting and displaying
+    issue records in tabular format.
+    ---------------------------------------------------------- */
+    public static void viewRecords(PreparedStatement pstmt)
+    {
+        try (ResultSet rs=pstmt.executeQuery()) 
+        {
+            if(!rs.next())
+            {
+                System.out.println("No Record Available");
+                return;
+            }
+            
+            ConsoleUtil.printRecordHeader();
+            
+            int cnt=0;
+
+            do{
+                cnt++;
+                System.out.printf("%-10d %-12s %-12s %-12s %-12s %-12s %-12s %-12s %-10s%n", rs.getInt("issue_id"),rs.getString("reg_no"),rs.getString("book_id"),rs.getDate("issue_date"),rs.getTime("issue_time"),rs.getDate("due_date"),rs.getDate("return_date")==null? "-" : rs.getDate("return_date"),rs.getTime("return_time") == null ? "-" : rs.getTime("return_time"),rs.getString("status"));
+                ConsoleUtil.printSeparatorLine(110);
+            }while(rs.next());
+
+            ConsoleUtil.printHeadLine(110);
+            System.out.println("Total Record : "+cnt);
+            
+        } 
+        catch (Exception e) 
+        {
+            ErrorUtil.printError("View Records", e);
+        }
+    }
+
+
+    /* ----------------------------------------------------------
+    Record Lookup Helpers
+    ----------------------------------------------------------
+    Retrieves a specific issue record based on
+    registration number, book ID, and issue status.
+    ---------------------------------------------------------- */
+    private static IssueRecord getIssuedRecord(String regNo,String bookId,IssueStatus status)
+    {
+        String sql = "SELECT * FROM issued_books WHERE reg_no = ? and book_id = ? and status = ? ;";
+
+        try (Connection connect = DBConnection.getConnection(); PreparedStatement  pstmt = connect.prepareStatement(sql);)
+        {
+            pstmt.setString(1, regNo);
+            pstmt.setString(2,bookId);
+            pstmt.setString(3,status.name());
+
+            try(ResultSet rs = pstmt.executeQuery())
+            {
+                if(rs.next()) 
+                {
+                    return new IssueRecord(rs.getInt("issue_id"), rs.getString("reg_no"), rs.getString("book_id"), rs.getDate("issue_date").toLocalDate(), rs.getTime("issue_time").toLocalTime(), rs.getDate("due_date").toLocalDate(),IssueStatus.valueOf(rs.getString("status")));
+                }
+            }
+        } 
+        catch (Exception e) 
+        {
+           ErrorUtil.printError("Get Issue Record", e);
+        }
+
+        return null;
+    }
+
+
+    /* ---------------------------------------------------------- 
+   Database Synchronization Helpers
+  ---------------------------------------------------------------
+   Maintains consistency between issue records
+   and available book quantities.
+   ---------------------------------------------------------- */
+    private static void syncBookQuantityToDB(Connection connect,Book newBook,int n) throws SQLException
+    {
+        String sql = "UPDATE books SET quantity = quantity + ? WHERE book_id=?;";
+
+        try( PreparedStatement  pstmt = connect.prepareStatement(sql); )
+        {
+            pstmt.setInt(1, n);
+            pstmt.setString(2, newBook.getBookId());
+
+            int rows = pstmt.executeUpdate();
+
+            if( rows<1 )
+            {
+                throw new SQLException("Book Count Not updated");
+            }
+        }
+         
+    }
+   
+
+   /* ----------------------------------------------------------
+   Validation Helpers
+   ----------------------------------------------------------
+   Checks whether a book is already issued
+   to a specific student before creating
+   a new transaction.
+   ---------------------------------------------------------- */
+    private static boolean isAlreadyIssued(String regNo,String bookId)
+    {
+        String sql = "SELECT 1 FROM issued_books WHERE reg_no = ? AND book_id = ? AND status =? ;";
+
+        try(Connection connect = DBConnection.getConnection(); PreparedStatement  pstmt = connect.prepareStatement(sql); )
+        {
+            pstmt.setString(1, regNo);
+            pstmt.setString(2, bookId);
+            pstmt.setString(3, IssueStatus.ISSUED.name());
+
+            try(ResultSet rs=pstmt.executeQuery())
+            {
+                return rs.next();
+            }
+        }
+        catch(SQLException e)
+        {
+           ErrorUtil.printError("Check Already Issued", e);
+        }
+        
+        return false;
+    }
+
+    
+    /* ----------------------------------------------------------
+   Issue Record Validation Helpers
+   ----------------------------------------------------------
+   Checks whether issue records exist for
+   a specific book or student.
+   These methods are primarily used before
+   delete operations.
+   ---------------------------------------------------------- */
+    public static boolean hasIssueRecordForBookId(String bookId)
+    {
+        String sql ="SELECT 1 FROM issued_books WHERE book_id=? LIMIT 1";
+
+        try(Connection con = DBConnection.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql))
+        {
+            pstmt.setString(1, bookId);
+
+            try(ResultSet rs = pstmt.executeQuery())
+            {
+                return rs.next();
+            }
+        }
+        catch(Exception e)
+        {
+            ErrorUtil.printError("Check Book Issue Records",e);
+        }
+
+        return false;
+    }
+    public static boolean hasIssueRecordForRegNo(String regNo)
+    {
+        String sql ="SELECT 1 FROM issued_books WHERE reg_no=? LIMIT 1";
+
+        try(Connection con = DBConnection.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql))
+        {
+            pstmt.setString(1, regNo);
+
+            try(ResultSet rs = pstmt.executeQuery())
+            {
+                return rs.next();
+            }
+        }
+        catch(Exception e)
+        {
+           ErrorUtil.printError("Check Student Issue Records", e);
+        }
+
+        return false; 
+    }
+   
+   
+    
+   
+    
+   
+  
+  
 }

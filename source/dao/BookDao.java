@@ -23,12 +23,212 @@ import source.util.ErrorUtil;
  */
 public class BookDao
 {
-    /**
-     * Helper method used to execute a query and display
-     * book records in a formatted table.
-     *
-     * @param pstmt Prepared statement containing the query to execute
-     */
+
+    /* ==========================================================
+   Book Management Operations
+   ----------------------------------------------------------
+   Handles book creation, retrieval, searching,
+   and deletion operations.
+   ========================================================== */
+
+    public static void addBook(Book book)
+    {
+        String sql =
+            "INSERT INTO Books(book_id,title,author,category,quantity) VALUES (?,?,?,?,?);";
+
+        try (
+            Connection connect = DBConnection.getConnection();
+            PreparedStatement pstmt = connect.prepareStatement(sql);
+        )
+        {
+            int i = 1;
+
+            pstmt.setString(i++, book.getBookId());
+            pstmt.setString(i++, book.getTitle());
+            pstmt.setString(i++, book.getAuthor());
+            pstmt.setString(i++, book.getCategory());
+            pstmt.setInt(i++, book.getQuantity());
+
+            int n = pstmt.executeUpdate();
+
+            if (n > 0)
+            {
+                System.out.println("Book Added Successfully");
+            }
+            else
+            {
+                System.out.println("Book Adding Failed");
+            }
+        }
+        catch (SQLException e)
+        {
+            ErrorUtil.printError("Add Books", e);
+        }
+    }
+    public static void viewAllBooks()
+    {
+        String sql = "SELECT * FROM books;";
+
+        try (
+            Connection connect = DBConnection.getConnection();
+            PreparedStatement pstmt = connect.prepareStatement(sql);
+        )
+        {
+            viewBooks(pstmt);
+        }
+        catch (SQLException e)
+        {
+            ErrorUtil.printError("View All Books", e);
+        }
+    }
+    public static void searchBookById(String searchId)
+    {
+        String sql = "SELECT * FROM books WHERE book_id=?;";
+
+        try (
+            Connection connect = DBConnection.getConnection();
+            PreparedStatement pstmt = connect.prepareStatement(sql);
+        )
+        {
+            pstmt.setString(1, searchId);
+
+            viewBooks(pstmt);
+        }
+        catch (Exception e)
+        {
+            ErrorUtil.printError("Search Book", e);
+        }
+    }
+    public static void deleteBookById(String deleteId)
+    {
+        if (getBookById(deleteId) == null)
+        {
+            System.out.println("No Book Found");
+            return;
+        }
+
+        if (IssueRecordDao.hasIssueRecordForBookId(deleteId))
+        {
+            System.out.println(
+                "Book Cannot Be Deleted Because Related Issue Records Exist"
+            );
+            return;
+        }
+
+        String sql = "DELETE FROM books WHERE book_id=?;";
+
+        try (
+            Connection connect = DBConnection.getConnection();
+            PreparedStatement pstmt = connect.prepareStatement(sql);
+        )
+        {
+            pstmt.setString(1, deleteId);
+
+            int n = pstmt.executeUpdate();
+
+            if (n > 0)
+            {
+                System.out.println("Book Deleted Successfully");
+            }
+            else
+            {
+                System.out.println("Book Deletion Failed");
+            }
+        }
+        catch (Exception e)
+        {
+            ErrorUtil.printError("Delete Book", e);
+        }
+    }
+
+
+
+
+
+
+
+    /* ==========================================================
+   Book Quantity Operations
+   ----------------------------------------------------------
+   Manages book inventory by increasing,
+   decreasing, or directly updating quantities.
+   ========================================================== */
+
+    public static void increaseBookCount(String bookId, int bookCount)
+    {
+        Book book = getBookById(bookId);
+
+        if (book == null)
+        {
+            System.out.println("Book Not Found");
+            return;
+        }
+
+        book.increaseQuantity(bookCount);
+
+        updateBookCount(book);
+    }
+    public static void decreaseBookCount(String bookId, int bookCount)
+    {
+        Book book = getBookById(bookId);
+
+        if (book == null)
+        {
+            System.out.println("Book Not Found");
+            return;
+        }
+        else if (bookCount > book.getQuantity())
+        {
+            System.out.println(
+                "Decreasing count should be less than or equal to current quantity"
+            );
+            return;
+        }
+
+        book.decreaseQuantity(bookCount);
+
+        updateBookCount(book);
+    }
+    public static void setOverallQuantity(String bookId, int bookCount)
+    {
+        Book book = getBookById(bookId);
+
+        if (book == null)
+        {
+            System.out.println("Book Not Found");
+            return;
+        }
+
+        book.setQuantity(bookCount);
+
+        updateBookCount(book);
+    }
+
+
+
+
+
+
+
+    /* ==========================================================
+   Helper Methods
+   ----------------------------------------------------------
+   Internal utility methods used for
+   book retrieval, quantity updates,
+   and formatted data display.
+   ========================================================== */
+
+
+
+
+
+
+   /* ----------------------------------------------------------
+   Display Helpers
+   ----------------------------------------------------------
+   Responsible for formatting and displaying
+   book records in a tabular format.
+   ---------------------------------------------------------- */
     public static void viewBooks(PreparedStatement pstmt)
     {
         try (ResultSet rs = pstmt.executeQuery())
@@ -73,146 +273,13 @@ public class BookDao
         }
     }
 
-    /**
-     * Adds a new book to the database.
-     *
-     * @param book Book object containing details to store
-     */
-    public static void addBook(Book book)
-    {
-        String sql =
-            "INSERT INTO Books(book_id,title,author,category,quantity) VALUES (?,?,?,?,?);";
 
-        try (
-            Connection connect = DBConnection.getConnection();
-            PreparedStatement pstmt = connect.prepareStatement(sql);
-        )
-        {
-            int i = 1;
-
-            pstmt.setString(i++, book.getBookId());
-            pstmt.setString(i++, book.getTitle());
-            pstmt.setString(i++, book.getAuthor());
-            pstmt.setString(i++, book.getCategory());
-            pstmt.setInt(i++, book.getQuantity());
-
-            int n = pstmt.executeUpdate();
-
-            if (n > 0)
-            {
-                System.out.println("Book Added Successfully");
-            }
-            else
-            {
-                System.out.println("Book Adding Failed");
-            }
-        }
-        catch (SQLException e)
-        {
-            ErrorUtil.printError("Add Books", e);
-        }
-    }
-
-    /**
-     * Retrieves and displays all books available in the library.
-     */
-    public static void viewAllBooks()
-    {
-        String sql = "SELECT * FROM books;";
-
-        try (
-            Connection connect = DBConnection.getConnection();
-            PreparedStatement pstmt = connect.prepareStatement(sql);
-        )
-        {
-            viewBooks(pstmt);
-        }
-        catch (SQLException e)
-        {
-            ErrorUtil.printError("View All Books", e);
-        }
-    }
-
-    /**
-     * Searches for a book using its unique book ID.
-     *
-     * @param searchId Book ID to search
-     */
-    public static void searchBookById(String searchId)
-    {
-        String sql = "SELECT * FROM books WHERE book_id=?;";
-
-        try (
-            Connection connect = DBConnection.getConnection();
-            PreparedStatement pstmt = connect.prepareStatement(sql);
-        )
-        {
-            pstmt.setString(1, searchId);
-
-            viewBooks(pstmt);
-        }
-        catch (Exception e)
-        {
-            ErrorUtil.printError("Search Book", e);
-        }
-    }
-
-    /**
-     * Deletes a book from the database.
-     * Deletion is prevented if any issue record
-     * is associated with the book.
-     *
-     * @param deleteId Book ID to delete
-     */
-    public static void deleteBookById(String deleteId)
-    {
-        if (getBookById(deleteId) == null)
-        {
-            System.out.println("No Book Found");
-            return;
-        }
-
-        if (IssueRecordDao.hasIssueRecordForBookId(deleteId))
-        {
-            System.out.println(
-                "Book Cannot Be Deleted Because Related Issue Records Exist"
-            );
-            return;
-        }
-
-        String sql = "DELETE FROM books WHERE book_id=?;";
-
-        try (
-            Connection connect = DBConnection.getConnection();
-            PreparedStatement pstmt = connect.prepareStatement(sql);
-        )
-        {
-            pstmt.setString(1, deleteId);
-
-            int n = pstmt.executeUpdate();
-
-            if (n > 0)
-            {
-                System.out.println("Book Deleted Successfully");
-            }
-            else
-            {
-                System.out.println("Book Deletion Failed");
-            }
-        }
-        catch (Exception e)
-        {
-            ErrorUtil.printError("Delete Book", e);
-        }
-    }
-
-    /**
-     * Helper method that retrieves a book object
-     * using its unique ID.
-     *
-     * @param bookId Book ID
-     * @return Book object if found, otherwise null
-     */
+    /* ----------------------------------------------------------
+   Record Lookup Helpers
+   ----------------------------------------------------------
+   Retrieves book information from the database
+   using unique book identifiers.
+   ---------------------------------------------------------- */
     public static Book getBookById(String bookId)
     {
         String sql = "SELECT * FROM books WHERE book_id=?;";
@@ -246,82 +313,13 @@ public class BookDao
         return null;
     }
 
-    /**
-     * Increases the available quantity of a book.
-     *
-     * @param bookId Book ID
-     * @param bookCount Number of copies to add
-     */
-    public static void increaseBookCount(String bookId, int bookCount)
-    {
-        Book book = BookDao.getBookById(bookId);
 
-        if (book == null)
-        {
-            System.out.println("Book Not Found");
-            return;
-        }
-
-        book.increaseQuantity(bookCount);
-
-        updateBookCount(book);
-    }
-
-    /**
-     * Decreases the available quantity of a book.
-     *
-     * @param bookId Book ID
-     * @param bookCount Number of copies to remove
-     */
-    public static void decreaseBookCount(String bookId, int bookCount)
-    {
-        Book book = BookDao.getBookById(bookId);
-
-        if (book == null)
-        {
-            System.out.println("Book Not Found");
-            return;
-        }
-        else if (bookCount > book.getQuantity())
-        {
-            System.out.println(
-                "Decreasing count should be less than or equal to current quantity"
-            );
-            return;
-        }
-
-        book.decreaseQuantity(bookCount);
-
-        updateBookCount(book);
-    }
-
-    /**
-     * Sets a new overall quantity for a book.
-     *
-     * @param bookId Book ID
-     * @param bookCount New quantity value
-     */
-    public static void setOverallQuantity(String bookId, int bookCount)
-    {
-        Book book = BookDao.getBookById(bookId);
-
-        if (book == null)
-        {
-            System.out.println("Book Not Found");
-            return;
-        }
-
-        book.setQuantity(bookCount);
-
-        updateBookCount(book);
-    }
-
-    /**
-     * Helper method responsible for updating
-     * a book's quantity in the database.
-     *
-     * @param book Book object containing updated quantity
-     */
+    /* ----------------------------------------------------------
+   Database Synchronization Helpers
+   ----------------------------------------------------------
+   Updates book quantity information and
+   keeps inventory data consistent.
+   ---------------------------------------------------------- */
     private static void updateBookCount(Book book)
     {
         String sql =
@@ -351,4 +349,5 @@ public class BookDao
             ErrorUtil.printError("Update Book Count", e);
         }
     }
+
 }

@@ -9,40 +9,27 @@ import source.util.DBConnection;
 import source.util.ErrorUtil;
 import source.model.Student;
 
-
+/**
+ * Data Access Object (DAO) responsible for managing
+ * all student-related database operations.
+ *
+ * This class handles:
+ * - Student registration
+ * - Student searching
+ * - Student deletion
+ * - Student information updates
+ * - Student record viewing
+ */
 public class StudentDao
-{
-    public static void viewStudents(PreparedStatement pstmt)//helper
-    {
-        try(ResultSet rs=pstmt.executeQuery()) 
-        {
-            if(!rs.next())
-                {
-                    System.out.println("No Students Available");
-                    return;
-                }  
-                
-            ConsoleUtil.printStudentHeader();
+{   
 
-            int cnt=0;
+    /* ==========================================================
+   Student Management Operations
+   ----------------------------------------------------------
+   Handles student creation, retrieval,
+   searching, and deletion operations.
+   ========================================================== */
 
-             do{
-                cnt++;
-                int i=1;
-                System.out.printf("%-12s %-25s %-15s %-8d %-15s %-30s%n",rs.getString(i++),rs.getString(i++),rs.getString(i++),rs.getInt(i++),rs.getString(i++),rs.getString(i++));
-                ConsoleUtil.printSeparatorLine(110);
-            }while(rs.next());
-
-        
-            ConsoleUtil.printHeadLine(110);
-            System.out.println();
-            System.out.println("Total Students : "+cnt);
-        } 
-        catch (Exception e) 
-        {
-           ErrorUtil.printError("View Students", e);
-        }
-    }
     public static void addStudent(Student student)
     {
         String sql = "INSERT INTO students (reg_no,name,department,year,phone,mail) VALUES (?,?,?,?,?,?);";
@@ -132,37 +119,24 @@ public class StudentDao
         }
 
     }
-    public static Student getStudentByRegNo(String regNo)  //helper
-    {
-        String sql = "SELECT * FROM students WHERE reg_no = ? ;";
 
-        try(Connection   connect = DBConnection.getConnection(); PreparedStatement  pstmt=connect.prepareStatement(sql);) 
-        {
-            pstmt.setString(1, regNo);
 
-            try(ResultSet rs=pstmt.executeQuery())
-            {
 
-                if(rs.next())
-                {   
-                    int i=1;
-                    Student newStudent = new Student(rs.getString(i++),rs.getString(i++),rs.getString(i++), rs.getInt(i++), rs.getString(i++), rs.getString(i++));
 
-                    return newStudent;
-                }
-            }
 
-        } 
-        catch (Exception e) 
-        {
-           ErrorUtil.printError("Get Student", e);
-        }
-        
-        return null;
-    }
+
+
+    /* ==========================================================
+   Student Update Operations
+   ----------------------------------------------------------
+   Handles updates to student information
+   such as phone number, email address,
+   and academic year.
+   ========================================================== */
+
     public static void updateStudentPhoneByRegNo(String regNo,String newPhone)
     {
-        Student newStudent = StudentDao.getStudentByRegNo(regNo);
+        Student newStudent = getStudentByRegNo(regNo);
 
         if(newStudent == null ) 
         {   System.out.println("Student Not Found");
@@ -193,7 +167,7 @@ public class StudentDao
     }
     public static void updateStudentMailIdByRegNo(String regNo,String newMailId)
     {
-        Student newStudent = StudentDao.getStudentByRegNo(regNo);
+        Student newStudent = getStudentByRegNo(regNo);
 
         if(newStudent == null) 
         {
@@ -226,7 +200,7 @@ public class StudentDao
     }
     public static void updateStudentYearByRegNo(String regNo,int newYear)
     {
-        Student newStudent = StudentDao.getStudentByRegNo(regNo);
+        Student newStudent = getStudentByRegNo(regNo);
 
         if(newStudent == null ) 
         {
@@ -260,4 +234,95 @@ public class StudentDao
 
     }
 
+
+
+
+
+
+
+    /* ==========================================================
+   Helper Methods
+   ----------------------------------------------------------
+   Internal utility methods used for
+   student retrieval and formatted
+   record display.
+   ========================================================== */
+
+
+   /* ----------------------------------------------------------
+   Display Helpers
+   ----------------------------------------------------------
+   Responsible for formatting and displaying
+   student records in a tabular format.
+   ---------------------------------------------------------- */
+
+    public static void viewStudents(PreparedStatement pstmt)
+    {
+        try(ResultSet rs=pstmt.executeQuery()) 
+        {
+            if(!rs.next())
+                {
+                    System.out.println("No Students Available");
+                    return;
+                }  
+                
+            ConsoleUtil.printStudentHeader();
+
+            int cnt=0;
+
+             do{
+                cnt++;
+                int i=1;
+                System.out.printf("%-12s %-25s %-15s %-8d %-15s %-30s%n",rs.getString(i++),rs.getString(i++),rs.getString(i++),rs.getInt(i++),rs.getString(i++),rs.getString(i++));
+                ConsoleUtil.printSeparatorLine(110);
+            }while(rs.next());
+
+        
+            ConsoleUtil.printHeadLine(110);
+            System.out.println();
+            System.out.println("Total Students : "+cnt);
+        } 
+        catch (Exception e) 
+        {
+           ErrorUtil.printError("View Students", e);
+        }
+    }
+    
+
+    /* ----------------------------------------------------------
+   Record Lookup Helpers
+   ----------------------------------------------------------
+   Retrieves student information from the
+   database using registration numbers.
+   ---------------------------------------------------------- */
+   
+   public static Student getStudentByRegNo(String regNo)
+    {
+        String sql = "SELECT * FROM students WHERE reg_no = ? ;";
+
+        try(Connection   connect = DBConnection.getConnection(); PreparedStatement  pstmt=connect.prepareStatement(sql);) 
+        {
+            pstmt.setString(1, regNo);
+
+            try(ResultSet rs=pstmt.executeQuery())
+            {
+
+                if(rs.next())
+                {   
+                    int i=1;
+                    Student newStudent = new Student(rs.getString(i++),rs.getString(i++),rs.getString(i++), rs.getInt(i++), rs.getString(i++), rs.getString(i++));
+
+                    return newStudent;
+                }
+            }
+
+        } 
+        catch (Exception e) 
+        {
+           ErrorUtil.printError("Get Student", e);
+        }
+        
+        return null;
+    }
+    
 }
