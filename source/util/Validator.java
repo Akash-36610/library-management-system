@@ -254,8 +254,7 @@ public class Validator
 
             String s = Main.sc.nextLine().trim();
 
-            if (!s.isEmpty() &&
-                s.matches("[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}"))
+            if (!s.isEmpty() && s.matches("[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}"))
             {
                 return s;
             }
