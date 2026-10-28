@@ -18,7 +18,7 @@ public class Main
 {
     // Scanner object used throughout the application for user input
     public static Scanner sc = new Scanner(System.in);
-
+    
     /**
      * Displays the main menu options. 
      * */
