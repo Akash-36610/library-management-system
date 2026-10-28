@@ -34,12 +34,7 @@ public class Student
      * @param phone Contact number
      * @param mailId Email address
      */
-    public Student(String regNo,
-                   String name,
-                   String department,
-                   int year,
-                   String phone,
-                   String mailId)
+    public Student(String regNo,String name,String department,int year,String phone,String mailId)
     {
         this.regNo = regNo;
         this.name = name;
